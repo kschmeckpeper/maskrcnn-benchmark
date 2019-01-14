@@ -16,30 +16,6 @@ from maskrcnn_benchmark.structures.bounding_box import BoxList
 
 class PascalVOCDataset(torch.utils.data.Dataset):
 
-    CLASSES = (
-        "__background__ ",
-        "aeroplane",
-        "bicycle",
-        "bird",
-        "boat",
-        "bottle",
-        "bus",
-        "car",
-        "cat",
-        "chair",
-        "cow",
-        "diningtable",
-        "dog",
-        "horse",
-        "motorbike",
-        "person",
-        "pottedplant",
-        "sheep",
-        "sofa",
-        "train",
-        "tvmonitor",
-    )
-
     def __init__(self, data_dir, split, use_difficult=False, transforms=None):
         self.root = data_dir
         self.image_set = split
@@ -55,7 +31,11 @@ class PascalVOCDataset(torch.utils.data.Dataset):
         self.ids = [x.strip("\n") for x in self.ids]
         self.id_to_img_map = {k: v for k, v in enumerate(self.ids)}
 
-        cls = PascalVOCDataset.CLASSES
+        print("Finding all class labels")
+        cls = self._get_all_classes()
+        print("Loaded all classes:", cls)
+        print("There are ", len(cls), " total classes")
+
         self.class_to_ind = dict(zip(cls, range(len(cls))))
 
     def __getitem__(self, index):
@@ -84,6 +64,22 @@ class PascalVOCDataset(torch.utils.data.Dataset):
         target.add_field("difficult", anno["difficult"])
         return target
 
+    def _get_all_classes(self):
+        classes = []
+        for img_id in self.ids:
+            anno = ET.parse(self._annopath % img_id).getroot()
+            target = self._preprocess_annotation(anno)
+            for obj in target.iter("object"):
+                if not self.keep_difficult and difficult:
+                    continue
+                name = obj.find("name").text.lower().strip()
+                if name not in classes:
+                    classes.append(name)
+        classes.sort()
+        classes.insert(0, "__background__ ")
+        return classes
+
+    
     def _preprocess_annotation(self, target):
         boxes = []
         gt_classes = []
