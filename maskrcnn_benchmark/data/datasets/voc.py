@@ -68,8 +68,8 @@ class PascalVOCDataset(torch.utils.data.Dataset):
         classes = []
         for img_id in self.ids:
             anno = ET.parse(self._annopath % img_id).getroot()
-            target = self._preprocess_annotation(anno)
-            for obj in target.iter("object"):
+
+            for obj in anno.iter("object"):
                 if not self.keep_difficult and difficult:
                     continue
                 name = obj.find("name").text.lower().strip()
