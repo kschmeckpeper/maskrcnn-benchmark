@@ -30,7 +30,8 @@ class PascalVOCDataset(torch.utils.data.Dataset):
             self.ids = f.readlines()
         self.ids = [x.strip("\n") for x in self.ids]
         self.id_to_img_map = {k: v for k, v in enumerate(self.ids)}
-
+        
+    def find_classes(self):
         print("Finding all class labels")
         cls = self._get_all_classes()
         print("Loaded all classes:", cls)
