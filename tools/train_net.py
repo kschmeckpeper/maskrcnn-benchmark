@@ -60,6 +60,16 @@ def train(cfg, local_rank, distributed):
         start_iter=arguments["iteration"],
     )
 
+    if checkpointer.classes is None:
+        for ds in data_loader.dataset.datasets:
+            ds.find_classes()
+        checkpointer.classes = data_loader.dataset.datasets[0].class_to_ind
+    else:
+        print("Loading classes from file")
+        print(checkpointer.classes)
+        for ds in data_loader.dataset.datasets:
+            ds.class_to_ind = checkpointer.classes
+    
     checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
 
     do_train(
