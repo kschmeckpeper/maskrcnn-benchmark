@@ -16,6 +16,7 @@ class Checkpointer(object):
         model,
         optimizer=None,
         scheduler=None,
+        classes=None,
         save_dir="",
         save_to_disk=None,
         logger=None,
@@ -23,6 +24,7 @@ class Checkpointer(object):
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler
+        self.classes = classes
         self.save_dir = save_dir
         self.save_to_disk = save_to_disk
         if logger is None:
@@ -42,6 +44,8 @@ class Checkpointer(object):
             data["optimizer"] = self.optimizer.state_dict()
         if self.scheduler is not None:
             data["scheduler"] = self.scheduler.state_dict()
+        if self.classes is not None:
+            data["class_names"] = self.classes
         data.update(kwargs)
 
         save_file = os.path.join(self.save_dir, "{}.pth".format(name))
