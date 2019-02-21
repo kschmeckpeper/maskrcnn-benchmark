@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 import torch
 import torch.utils.data
@@ -41,9 +42,16 @@ class PascalVOCDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         img_id = self.ids[index]
+        anno = ET.parse(self._annopath % img_id).getroot()
+        anno = self._preprocess_annotation(anno)
+
+        if len(annot["boxes"]) == 0:
+            print "image has no annotations, skipping"
+            return self.__getitem__(np.random.choice(self.__len__()))
+
         img = Image.open(self._imgpath % img_id).convert("RGB")
 
-        target = self.get_groundtruth(index)
+        target = self.get_groundtruth(anno)
         target = target.clip_to_image(remove_empty=True)
 
         if self.transforms is not None:
@@ -54,10 +62,7 @@ class PascalVOCDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.ids)
 
-    def get_groundtruth(self, index):
-        img_id = self.ids[index]
-        anno = ET.parse(self._annopath % img_id).getroot()
-        anno = self._preprocess_annotation(anno)
+    def get_groundtruth(self, anno):
 
         height, width = anno["im_info"]
         target = BoxList(anno["boxes"], (width, height), mode="xyxy")
