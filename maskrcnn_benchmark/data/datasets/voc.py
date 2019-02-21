@@ -45,7 +45,7 @@ class PascalVOCDataset(torch.utils.data.Dataset):
         anno = ET.parse(self._annopath % img_id).getroot()
         anno = self._preprocess_annotation(anno)
 
-        if len(anno["boxes"]) == 0:
+        if anno["boxes"].shape[1] == 0:
             print("image has no annotations, skipping")
             return self.__getitem__(np.random.choice(self.__len__()))
 
