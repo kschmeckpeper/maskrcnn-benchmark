@@ -16,7 +16,6 @@ class Checkpointer(object):
         model,
         optimizer=None,
         scheduler=None,
-        classes=None,
         save_dir="",
         save_to_disk=None,
         logger=None,
@@ -24,7 +23,7 @@ class Checkpointer(object):
         self.model = model
         self.optimizer = optimizer
         self.scheduler = scheduler
-        self.classes = classes
+        self.classes = None
         self.save_dir = save_dir
         self.save_to_disk = save_to_disk
         if logger is None:
